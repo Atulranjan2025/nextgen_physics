@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-0(76oi5(#s%*87evnipe(p4#mwds$xl-&+@+&i*eqv(5t!b$)%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['nextgen-physics.onrender.com', '127.0.0.1', 'localhost']
+
 
 
 # Application definition
