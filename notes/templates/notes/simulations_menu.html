@@ -1,0 +1,38 @@
+{% extends "notes/base.html" %} {% block title %}Simulations - NextGen
+Physics{%endblock %} {% block content %}
+<div class="container text-center mt-5">
+  <h1 class="text-primary fw-bold">⚙️ Physics Simulations Library</h1>
+  <p class="lead text-muted mb-4">
+    Explore 25+ interactive simulations for JEE & NEET Physics.
+  </p>
+
+  <div class="row justify-content-center">
+    {% for sim in simulations %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm border-0 h-100">
+        {% if sim.thumbnail %}
+        <img
+          src="{{ sim.thumbnail.url }}"
+          class="card-img-top"
+          style="height: 180px; object-fit: cover"
+        />
+        {% endif %}
+        <div class="card-body text-start">
+          <h5 class="card-title text-primary">{{ sim.title }}</h5>
+          <p class="card-text text-muted">
+            {{ sim.description|truncatechars:120 }}
+          </p>
+          <a
+            href="{% url 'simulation_detail' sim.slug %}"
+            class="btn btn-outline-primary w-100"
+            >Start Simulation ⚡</a
+          >
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No simulations available yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

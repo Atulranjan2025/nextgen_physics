@@ -1,0 +1,20 @@
+{% extends "notes/base.html" %} {% block title %}Result - NextGen
+Physics{%endblock %} {% block content %}
+<div class="container text-center mt-5">
+  <h1 class="text-primary">Your Test Result 🎯</h1>
+  <h3 class="mt-3">Score: {{ score }} / {{ total }}</h3>
+  <h4 class="mt-2 text-success">Percentage: {{ percentage|floatformat:2 }}%</h4>
+
+  {% if percentage >= 75 %}
+  <p class="text-success fw-bold mt-3">Excellent! Keep it up 🚀</p>
+  {% elif percentage >= 50 %}
+  <p class="text-warning fw-bold mt-3">Good! But you can do even better ⚡</p>
+  {% else %}
+  <p class="text-danger fw-bold mt-3">
+    Needs Improvement — revise your concepts 📘
+  </p>
+  {% endif %}
+
+  <a href="/test/" class="btn btn-primary mt-4">Take Test Again</a>
+</div>
+{% endblock %}

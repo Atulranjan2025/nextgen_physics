@@ -1,0 +1,101 @@
+{% extends "notes/base.html" %} {% block title %} Notes - NextGen Physics
+{%endblock %} {% block content %}
+<div class="container text-center">
+  <h1 class="display-5 fw-bold text-primary">Physics Notes 📘</h1>
+  <p class="lead mt-3">
+    Explore concept-based interactive notes powered by AI ⚛️
+  </p>
+
+  <!-- 🔍 Search Bar -->
+  <form method="get" class="d-flex justify-content-center mb-4">
+    <input
+      type="text"
+      name="q"
+      value="{{ query }}"
+      class="form-control w-50 me-2"
+      placeholder="Search by title or chapter..."
+    />
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
+  <!-- Notes Grid -->
+  <div class="row mt-3">
+    {% for note in notes %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <h5 class="card-title text-primary">{{ note.title }}</h5>
+          <p class="card-text text-muted">
+            {{ note.description|truncatechars:120 }}
+          </p>
+          <p><strong>Chapter:</strong> {{ note.chapter }}</p>
+
+          <!-- View Details Button -->
+          <a
+            href="{% url 'note_detail' note.id %}"
+            class="btn btn-primary btn-sm me-2"
+            >View Details</a
+          >
+
+          <!-- PDF Button -->
+          {% if note.pdf_file %}
+          <a
+            href="{{ note.pdf_file.url }}"
+            class="btn btn-outline-success btn-sm"
+            target="_blank"
+          >
+            📄 View PDF
+          </a>
+          {% else %}
+          <p class="text-muted small mt-2 mb-0">No PDF available</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-muted mt-5">No notes available yet.</p>
+    {% endfor %}
+  </div>
+
+  <!-- ✅ Pagination Controls -->
+  <div class="mt-4 d-flex justify-content-center">
+    <nav aria-label="Notes pagination">
+      <ul class="pagination">
+        {% if notes.has_previous %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="?page={{ notes.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
+            >← Previous</a
+          >
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">← Previous</span>
+        </li>
+        {% endif %}
+
+        <li class="page-item disabled">
+          <span class="page-link">
+            Page {{ notes.number }} of {{ notes.paginator.num_pages }}
+          </span>
+        </li>
+
+        {% if notes.has_next %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="?page={{ notes.next_page_number }}{% if query %}&q={{ query }}{% endif %}"
+            >Next →</a
+          >
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">Next →</span>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</div>
+{% endblock %}

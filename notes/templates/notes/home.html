@@ -1,0 +1,39 @@
+{% extends "notes/base.html" %} {% block title %} Home - NextGen Physics
+{%endblock %} {% block content %}
+<div class="container text-center mt-5">
+  <h1 class="display-5 fw-bold text-primary">Welcome to NextGen Physics ⚛️</h1>
+  <p class="lead mt-3">Where Science Meets Imagination ✨</p>
+
+  <!-- 🚀 Buttons Section -->
+  <div class="mt-4">
+    <a href="/notes/" class="btn btn-outline-primary btn-lg me-3"
+      >📘 Explore Notes</a
+    >
+    <a href="/test/" class="btn btn-success btn-lg">🧠 Take Online Test</a>
+  </div>
+</div>
+
+<!-- 📖 Test Section Preview -->
+<div class="container mt-5">
+  <h2 class="text-center text-primary mb-4">
+    Test Yourself with Interactive Quizzes
+  </h2>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h4 class="card-title">Why Take Our Tests?</h4>
+          <p class="card-text text-muted">
+            Boost your NEET & JEE Physics preparation with AI-curated questions
+            covering every topic. Each test gives you instant results, accuracy
+            score, and improvement feedback.
+          </p>
+          <a href="/test/" class="btn btn-success btn-lg mt-3"
+            >Start Test Now ⚡</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

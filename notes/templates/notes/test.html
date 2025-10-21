@@ -1,0 +1,60 @@
+{% extends "notes/base.html" %} {% block title %}Online Test - NextGen Physics
+{%endblock %} {% block content %}
+<div class="container mt-5">
+  <h1 class="text-center text-primary mb-4">Physics Online Test ⚛️</h1>
+
+  <form method="POST" action="{% url 'submit_test' %}">
+    {% csrf_token %} {% for question in questions %}
+    <div class="card mb-4 shadow-sm border-0">
+      <div class="card-body text-start">
+        <h5 class="card-title">
+          {{ forloop.counter }}. {{ question.question_text }}
+        </h5>
+        <div class="ms-3 mt-2">
+          <label class="d-block">
+            <input
+              type="radio"
+              name="{{ question.id }}"
+              value="A"
+              class="form-check-input me-2"
+            />
+            A. {{ question.option_a }}
+          </label>
+          <label class="d-block">
+            <input
+              type="radio"
+              name="{{ question.id }}"
+              value="B"
+              class="form-check-input me-2"
+            />
+            B. {{ question.option_b }}
+          </label>
+          <label class="d-block">
+            <input
+              type="radio"
+              name="{{ question.id }}"
+              value="C"
+              class="form-check-input me-2"
+            />
+            C. {{ question.option_c }}
+          </label>
+          <label class="d-block">
+            <input
+              type="radio"
+              name="{{ question.id }}"
+              value="D"
+              class="form-check-input me-2"
+            />
+            D. {{ question.option_d }}
+          </label>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="text-center">
+      <button type="submit" class="btn btn-success btn-lg">Submit Test</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
