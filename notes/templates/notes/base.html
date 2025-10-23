@@ -10,14 +10,167 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- MathJax (for equations like F = ma) -->
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]] },
+        svg: { fontCache: "global" },
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <!-- 🌈 Custom Styles -->
+    <style>
+      /* =====================
+         🌗 Theme Colors
+      ===================== */
+      :root {
+        --bg-color: #f8f9fa;
+        --text-color: #212529;
+        --card-bg: #ffffff;
+        --nav-bg: #212529;
+        --nav-text: #ffffff;
+      }
+
+      body.dark-mode {
+        --bg-color: #121212;
+        --text-color: #f8f9fa;
+        --card-bg: #1e1e1e;
+        --nav-bg: #000000;
+        --nav-text: #ffffff;
+      }
+
+      /* =====================
+         🧱 Base Layout
+      ===================== */
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.4s ease, color 0.4s ease;
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* =====================
+         🌐 Navbar
+      ===================== */
+      .navbar {
+        background-color: var(--nav-bg) !important;
+        transition: background-color 0.4s ease;
+      }
+
+      .nav-link {
+        color: var(--nav-text) !important;
+        transition: color 0.3s ease;
+      }
+
+      .nav-link:hover {
+        color: #ffc107 !important;
+      }
+
+      .navbar-brand {
+        font-weight: 600;
+        font-size: 1.3rem;
+      }
+
+      /* =====================
+         📦 Cards (Test + Result)
+      ===================== */
+      .question-card,
+      .result-card {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        border-radius: 10px;
+        transition: background-color 0.4s ease, color 0.4s ease;
+      }
+
+      /* =====================
+         🖼️ Image Styling (Test + Result)
+      ===================== */
+      .question-card img,
+      .result-image {
+        display: block;
+        margin: 15px auto;
+        max-width: 420px;
+        height: auto;
+        border-radius: 8px;
+        border: 1px solid #555;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+        transition: transform 0.2s ease-in-out, filter 0.4s ease-in-out;
+      }
+
+      .question-card img:hover,
+      .result-image:hover {
+        transform: scale(1.05);
+      }
+
+      /* ✅ Keep diagrams visible in dark mode */
+      body.dark-mode .question-card img,
+      body.dark-mode .result-image {
+        background-color: #fff;
+        padding: 6px;
+        filter: brightness(1.1) contrast(1.15);
+      }
+
+      /* =====================
+         🌙 Theme Toggle
+      ===================== */
+      .theme-toggle {
+        background: none;
+        border: none;
+        color: var(--nav-text);
+        font-size: 1.6rem;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      .theme-toggle:hover {
+        transform: rotate(25deg);
+      }
+
+      /* =====================
+         🧾 Footer
+      ===================== */
+      footer {
+        background-color: var(--nav-bg);
+        color: var(--nav-text);
+        transition: all 0.4s ease;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .question-card img,
+        .result-image {
+          max-width: 95%;
+        }
+      }
+    </style>
   </head>
-  <body class="bg-light">
-    <!-- Navbar (common for all pages) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+  <body>
+    <!-- =====================
+         🧭 Navbar
+    ===================== -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container">
         <a class="navbar-brand fw-bold" href="/">⚛️ NextGen Physics</a>
 
-        <!-- ✅ Toggle Button for Mobile -->
         <button
           class="navbar-toggler"
           type="button"
@@ -30,39 +183,82 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- ✅ Collapsible Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
+          <ul class="navbar-nav ms-auto align-items-center">
             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-            <li class="nav-item">
-              <a class="nav-link" href="/about/">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/notes/">Notes</a>
-            </li>
+            <li class="nav-item"><a class="nav-link" href="/about/">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="/notes/">Notes</a></li>
             <li class="nav-item"><a class="nav-link" href="/test/">Test</a></li>
-            <li class="nav-item">
-              <a class="nav-link" href="/simulations/">Simulations</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/contact/">Contact</a>
+            <li class="nav-item"><a class="nav-link" href="/simulations/">Simulations</a></li>
+            <li class="nav-item"><a class="nav-link" href="/contact/">Contact</a></li>
+            <li class="nav-item ms-3">
+              <button id="themeToggle" class="theme-toggle" title="Toggle Dark/Light Mode">
+                ⭐
+              </button>
             </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <!-- Dynamic page content -->
-    <main class="container py-5">{% block content %} {% endblock %}</main>
+    <!-- =====================
+         📄 Dynamic Content
+    ===================== -->
+    <main class="container py-5 mt-5">
+      {% block content %}{% endblock %}
+    </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3 mt-5">
+    <!-- =====================
+         ⚙️ Footer
+    ===================== -->
+    <footer class="text-center py-3">
       <p class="mb-0">
-        © 2025 NextGen Physics | Crafted with ❤️ by Atul Ranjan
+        © 2025 <strong>NextGen Physics</strong> | Crafted with ❤️ by
+        <strong>Atul Ranjan</strong>
       </p>
     </footer>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- =====================
+         🌗 Theme Toggle Script
+    ===================== -->
+    <script>
+      const toggleButton = document.getElementById("themeToggle");
+      const body = document.body;
+
+      const userPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const savedTheme = localStorage.getItem("theme");
+
+      if (savedTheme === "dark" || (!savedTheme && userPrefersDark)) {
+        body.classList.add("dark-mode");
+        toggleButton.textContent = "☀️";
+      } else {
+        toggleButton.textContent = "⭐";
+      }
+
+      function smoothTransition() {
+        body.classList.add("fade-transition");
+        setTimeout(() => body.classList.remove("fade-transition"), 500);
+      }
+
+      toggleButton.addEventListener("click", () => {
+        smoothTransition();
+        body.classList.toggle("dark-mode");
+        const dark = body.classList.contains("dark-mode");
+        toggleButton.textContent = dark ? "☀️" : "⭐";
+        localStorage.setItem("theme", dark ? "dark" : "light");
+      });
+
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+        const newPref = e.matches ? "dark" : "light";
+        if (!localStorage.getItem("theme")) {
+          smoothTransition();
+          body.classList.toggle("dark-mode", newPref === "dark");
+          toggleButton.textContent = newPref === "dark" ? "☀️" : "⭐";
+        }
+      });
+    </script>
   </body>
 </html>

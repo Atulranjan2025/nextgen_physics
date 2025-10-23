@@ -1,20 +1,159 @@
-{% extends "notes/base.html" %} {% block title %}Result - NextGen
-Physics{%endblock %} {% block content %}
-<div class="container text-center mt-5">
-  <h1 class="text-primary">Your Test Result 🎯</h1>
-  <h3 class="mt-3">Score: {{ score }} / {{ total }}</h3>
-  <h4 class="mt-2 text-success">Percentage: {{ percentage|floatformat:2 }}%</h4>
+{% extends "notes/base.html" %}
+{% block title %}Test Result - NextGen Physics{% endblock %}
+{% block content %}
 
-  {% if percentage >= 75 %}
-  <p class="text-success fw-bold mt-3">Excellent! Keep it up 🚀</p>
-  {% elif percentage >= 50 %}
-  <p class="text-warning fw-bold mt-3">Good! But you can do even better ⚡</p>
-  {% else %}
-  <p class="text-danger fw-bold mt-3">
-    Needs Improvement — revise your concepts 📘
-  </p>
-  {% endif %}
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="text-center mb-4">
+    <h2 class="text-success fw-bold">✅ Test Completed</h2>
+    <h4 class="text-primary">{{ test.title }}</h4>
+  </div>
 
-  <a href="/test/" class="btn btn-primary mt-4">Take Test Again</a>
+  <!-- Summary Cards -->
+  <div class="row mb-4 text-center g-3">
+    <div class="col-md-3 col-6">
+      <div class="p-3 result-card border rounded shadow-sm">
+        <h6>Total Questions</h6>
+        <h3 class="text-primary fw-bold">{{ total }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="p-3 result-card border rounded shadow-sm">
+        <h6>Correct</h6>
+        <h3 class="text-success fw-bold">{{ correct }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="p-3 result-card border rounded shadow-sm">
+        <h6>Wrong</h6>
+        <h3 class="text-danger fw-bold">{{ wrong }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="p-3 result-card border rounded shadow-sm">
+        <h6>Unanswered</h6>
+        <h3 class="text-secondary fw-bold">{{ unanswered }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Section -->
+  <div class="text-center mb-4">
+    <h4>Score: <span class="text-primary">{{ score|floatformat:2 }}%</span></h4>
+    <h5>Accuracy: <span class="text-info">{{ accuracy|floatformat:2 }}%</span></h5>
+  </div>
+
+  <hr />
+
+  <!-- Question Review -->
+  <h4 class="mt-4 text-primary fw-bold">📘 Question Review</h4>
+
+  {% for item in questions %}
+  <div
+    class="card mb-4 shadow-sm {% if item.is_correct %}border-success{% elif item.selected %}border-danger{% else %}border-secondary{% endif %}">
+    <div class="card-body">
+      <!-- Question Text -->
+      <h5 class="fw-semibold">{{ forloop.counter }}. {{ item.question.question_text|safe }}</h5>
+
+      <!-- Diagram -->
+      {% if item.question.image %}
+      <div class="text-center my-3">
+        <img
+          src="{{ item.question.image.url }}"
+          alt="Question Image"
+          class="result-image img-fluid rounded shadow-sm"
+        />
+      </div>
+      {% endif %}
+
+      <!-- Answers -->
+      <div class="mt-3">
+        <!-- Your Answer -->
+        <p class="mb-1">
+          <strong>Your Answer:</strong>
+          {% if item.selected %}
+            {% if item.is_correct %}
+              <span class="text-success">
+                {{ item.selected }}. {{ item.selected_text }} ✅
+              </span>
+            {% else %}
+              <span class="text-danger">
+                {{ item.selected }}. {{ item.selected_text }} ❌
+              </span>
+            {% endif %}
+          {% else %}
+            <span class="text-secondary">Not Attempted ⏳</span>
+          {% endif %}
+        </p>
+
+        <!-- Correct Answer -->
+        <p class="mb-0">
+          <strong>Correct Answer:</strong>
+          <span class="text-success">
+            {{ item.correct }}. {{ item.correct_text }}
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-center text-muted mt-4">No questions found for this test.</p>
+  {% endfor %}
+
+  <!-- Back Button -->
+  <div class="text-center mt-5 mb-5">
+    <a href="/dashboard/" class="btn btn-outline-primary btn-lg">
+      🏠 Go to Dashboard
+    </a>
+  </div>
 </div>
+
+<!-- Extra CSS (Optional, if not in base.html) -->
+<style>
+  /* ✅ Result Page Specific Styling */
+  .result-card {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  .result-image {
+    display: block;
+    margin: 10px auto;
+    width: auto !important;
+    max-width: 300px !important;
+    height: auto;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(168, 23, 23, 0.2);
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .result-image:hover {
+    transform: scale(1.05);
+  }
+
+  /* ✅ Image visibility fix for dark mode */
+  body.dark-mode .result-image {
+    background-color: #fff;
+    padding: 6px;
+    filter: brightness(1.05) contrast(1.1);
+  }
+
+  .result-card h6 {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .result-card h3 {
+    font-size: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .result-image {
+      max-width: 95% !important;
+    }
+  }
+</style>
+
 {% endblock %}

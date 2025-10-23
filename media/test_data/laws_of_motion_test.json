@@ -1,0 +1,51 @@
+{
+  "title": "Laws of Motion Test 1",
+  "description": "Conceptual and numerical questions on Newton’s Laws, friction, and tension in strings.",
+  "questions": [
+    {
+      "question_text": "A block of mass 5 kg rests on a smooth horizontal surface. A force of 20 N is applied on it. Find its acceleration using \\( F = ma \\).",
+      "image": "media/test_images/block_surface.png",
+      "option_a": "2 m/s²",
+      "option_b": "3 m/s²",
+      "option_c": "4 m/s²",
+      "option_d": "5 m/s²",
+      "correct_option": "C"
+    },
+    {
+      "question_text": "Two blocks A and B of masses 3 kg and 2 kg are connected by a light string and placed on a smooth horizontal surface. A force of 10 N acts on A. Find the tension in the string. \\( a = \\frac{F}{m_A + m_B} \\)",
+      "image": "media/test_images/two_blocks.png",
+      "option_a": "4 N",
+      "option_b": "5 N",
+      "option_c": "6 N",
+      "option_d": "7 N",
+      "correct_option": "B"
+    },
+    {
+      "question_text": "A 10 kg body is suspended by a string from a ceiling. Find the tension in the string when the body is moving upward with acceleration \\( 2 m/s^2 \\). Use \\( T = m(g + a) \\).",
+      "image": "media/test_images/hanging_body.png",
+      "option_a": "80 N",
+      "option_b": "100 N",
+      "option_c": "120 N",
+      "option_d": "140 N",
+      "correct_option": "C"
+    },
+    {
+      "question_text": "A block of 10 kg is placed on a rough surface (\\( \\mu = 0.3 \\)). A horizontal force of 20 N acts on it. Find the acceleration if \\( g = 10 m/s^2 \\).",
+      "image": "media/test_images/friction_block.png",
+      "option_a": "0.5 m/s²",
+      "option_b": "1 m/s²",
+      "option_c": "2 m/s²",
+      "option_d": "No motion",
+      "correct_option": "D"
+    },
+    {
+      "question_text": "A body is pulled by a force making 30° with the horizontal. The tension in the string is 50 N. Find horizontal component of the force. \\( F_x = F \\cos(30°) \\)",
+      "image": "media/test_images/inclined_pull.png",
+      "option_a": "25 N",
+      "option_b": "35 N",
+      "option_c": "43.3 N",
+      "option_d": "50 N",
+      "correct_option": "C"
+    }
+  ]
+}

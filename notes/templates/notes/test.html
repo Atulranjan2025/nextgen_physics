@@ -1,60 +1,235 @@
-{% extends "notes/base.html" %} {% block title %}Online Test - NextGen Physics
-{%endblock %} {% block content %}
-<div class="container mt-5">
-  <h1 class="text-center text-primary mb-4">Physics Online Test ⚛️</h1>
+{% extends "notes/base.html" %}
+{% block title %}Online Test - NextGen Physics{% endblock %}
+{% block content %}
 
-  <form method="POST" action="{% url 'submit_test' %}">
-    {% csrf_token %} {% for question in questions %}
-    <div class="card mb-4 shadow-sm border-0">
-      <div class="card-body text-start">
-        <h5 class="card-title">
-          {{ forloop.counter }}. {{ question.question_text }}
-        </h5>
-        <div class="ms-3 mt-2">
-          <label class="d-block">
-            <input
-              type="radio"
-              name="{{ question.id }}"
-              value="A"
-              class="form-check-input me-2"
-            />
-            A. {{ question.option_a }}
-          </label>
-          <label class="d-block">
-            <input
-              type="radio"
-              name="{{ question.id }}"
-              value="B"
-              class="form-check-input me-2"
-            />
-            B. {{ question.option_b }}
-          </label>
-          <label class="d-block">
-            <input
-              type="radio"
-              name="{{ question.id }}"
-              value="C"
-              class="form-check-input me-2"
-            />
-            C. {{ question.option_c }}
-          </label>
-          <label class="d-block">
-            <input
-              type="radio"
-              name="{{ question.id }}"
-              value="D"
-              class="form-check-input me-2"
-            />
-            D. {{ question.option_d }}
-          </label>
+<style>
+  /* 🎨 Image Styling */
+  .question-card img {
+    display: block;
+    margin: 15px auto;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+  }
+
+  .question-card img:hover {
+    transform: scale(1.05);
+  }
+</style>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="fw-bold text-primary mb-3">🧭 Questions</h5>
+          <div id="question-list" class="d-flex flex-wrap gap-2">
+            {% for question in questions %}
+              <button
+                class="btn btn-outline-secondary btn-sm question-nav"
+                id="btn-q{{ question.id }}"
+                onclick="showQuestion({{ forloop.counter0 }})"
+              >
+                {{ forloop.counter }}
+              </button>
+            {% endfor %}
+          </div>
+
+          <hr />
+          <div class="text-center">
+            <div class="fs-5 fw-bold text-danger" id="timer">00:00</div>
+            <small class="text-muted">Time Remaining</small>
+          </div>
         </div>
       </div>
     </div>
-    {% endfor %}
 
-    <div class="text-center">
-      <button type="submit" class="btn btn-success btn-lg">Submit Test</button>
+    <!-- Main Test Area -->
+    <div class="col-md-9">
+      <h2 class="text-center text-primary mb-4">⚛️ Physics Online Test</h2>
+
+      <form id="test-form" onsubmit="event.preventDefault(); submitTest();">
+        {% csrf_token %}
+        <input type="hidden" id="sessionId" value="{{ session.id }}">
+
+        {% for question in questions %}
+          <div
+            class="card mb-4 shadow-sm border-0 question-card"
+            id="q{{ forloop.counter0 }}"
+            {% if not forloop.first %}style="display:none;"{% endif %}
+          >
+            <div class="card-body">
+              <h5>{{ forloop.counter }}. {{ question.question_text|safe }}</h5>
+
+              {% if question.image %}
+                <div class="text-center my-3">
+                  <img src="{{ question.image.url }}"
+                       alt="Question Image"
+                       class="img-fluid rounded shadow-sm">
+                </div>
+              {% endif %}
+
+              <div class="ms-3 mt-3">
+                <label class="d-block mb-2">
+                  <input type="radio" name="{{ question.id }}" value="A"
+                    class="form-check-input me-2"
+                    onchange="saveProgress('{{ question.id }}', 'A')">
+                  A. {{ question.option_a }}
+                </label>
+                <label class="d-block mb-2">
+                  <input type="radio" name="{{ question.id }}" value="B"
+                    class="form-check-input me-2"
+                    onchange="saveProgress('{{ question.id }}', 'B')">
+                  B. {{ question.option_b }}
+                </label>
+                <label class="d-block mb-2">
+                  <input type="radio" name="{{ question.id }}" value="C"
+                    class="form-check-input me-2"
+                    onchange="saveProgress('{{ question.id }}', 'C')">
+                  C. {{ question.option_c }}
+                </label>
+                <label class="d-block mb-2">
+                  <input type="radio" name="{{ question.id }}" value="D"
+                    class="form-check-input me-2"
+                    onchange="saveProgress('{{ question.id }}', 'D')">
+                  D. {{ question.option_d }}
+                </label>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+        <div class="d-flex justify-content-between mt-3">
+          <button type="button" class="btn btn-outline-primary" onclick="prevQuestion()">⬅️ Prev</button>
+          <button type="button" class="btn btn-outline-primary" onclick="nextQuestion()">Next ➡️</button>
+        </div>
+
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-success btn-lg">✅ Submit Test</button>
+        </div>
+      </form>
     </div>
-  </form>
+  </div>
 </div>
+
+<script>
+  // ========================
+  // ✅ Utility Functions
+  // ========================
+  function getCSRFToken() {
+    const token = document.querySelector('[name=csrfmiddlewaretoken]');
+    return token ? token.value : '';
+  }
+
+  let timeLeft = 1800; // 30 minutes
+  let currentIndex = 0;
+  let questionCards;
+
+  window.onload = function() {
+    questionCards = document.querySelectorAll(".question-card");
+    startTimer();
+  };
+
+  // ========================
+  // ⏱️ Timer
+  // ========================
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  }
+
+  function startTimer() {
+    const timerDisplay = document.getElementById("timer");
+    const countdown = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = formatTime(timeLeft);
+      if (timeLeft <= 0) {
+        clearInterval(countdown);
+        submitTest();
+      }
+    }, 1000);
+  }
+
+  // ========================
+  // 🔄 Navigation
+  // ========================
+  function showQuestion(index) {
+    questionCards[currentIndex].style.display = "none";
+    questionCards[index].style.display = "block";
+    currentIndex = index;
+  }
+
+  function nextQuestion() {
+    if (currentIndex < questionCards.length - 1) showQuestion(currentIndex + 1);
+  }
+
+  function prevQuestion() {
+    if (currentIndex > 0) showQuestion(currentIndex - 1);
+  }
+
+  // ========================
+  // 💾 Auto-save Progress
+  // ========================
+  function saveProgress(questionId, selectedOption) {
+    const sessionId = document.getElementById("sessionId").value;
+
+    fetch("/save_progress/", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken(),
+      },
+      body: JSON.stringify({
+        session_id: sessionId,
+        question_id: questionId,
+        selected_option: selectedOption,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success") {
+          const btn = document.getElementById(`btn-q${questionId}`);
+          btn.classList.remove("btn-outline-secondary");
+          btn.classList.add("btn-success");
+        }
+      })
+      .catch((err) => console.error("Save error:", err));
+  }
+
+  // ========================
+  // 🚀 Submit Test
+  // ========================
+  function submitTest() {
+    const sessionId = document.getElementById("sessionId").value;
+
+    fetch("/submit_test/", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken(),
+      },
+      body: JSON.stringify({ session_id: sessionId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success") {
+          alert(`✅ Test Submitted!\nScore: ${data.score.toFixed(2)}%\nAccuracy: ${data.accuracy.toFixed(2)}%`);
+          window.location.href = `/result/${sessionId}/`;
+        } else {
+          alert("⚠️ Error: " + data.message);
+        }
+      })
+      .catch((err) => {
+        console.error("Submit error:", err);
+        alert("Something went wrong while submitting the test.");
+      });
+  }
+</script>
+
 {% endblock %}

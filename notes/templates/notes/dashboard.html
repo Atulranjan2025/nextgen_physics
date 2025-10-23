@@ -1,0 +1,129 @@
+{% extends "notes/base.html" %} {% block title %}My Dashboard - NextGen
+Physics{% endblock %} {% block content %}
+
+<div class="container mt-5">
+  <h2 class="text-center text-primary fw-bold mb-4">📊 My Test Dashboard</h2>
+
+  <!-- Summary Cards -->
+  <div class="row text-center mb-5">
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm border-0 p-3">
+        <h5 class="text-secondary fw-bold">Total Tests</h5>
+        <h2>{{ total_tests }}</h2>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm border-0 p-3">
+        <h5 class="text-success fw-bold">Average Score</h5>
+        <h2>{{ avg_score|floatformat:2 }}%</h2>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm border-0 p-3">
+        <h5 class="text-info fw-bold">Average Accuracy</h5>
+        <h2>{{ avg_accuracy|floatformat:2 }}%</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trend Charts -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-md-8">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Test History Table -->
+  <div class="table-responsive mt-4">
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Test</th>
+          <th>Date</th>
+          <th>Score (%)</th>
+          <th>Accuracy (%)</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ r.session.test.title }}</td>
+          <td>{{ r.session.start_time|date:"M d, Y - H:i" }}</td>
+          <td class="fw-bold text-success">{{ r.score|floatformat:2 }}</td>
+          <td class="fw-bold text-info">{{ r.accuracy|floatformat:2 }}</td>
+          <td>
+            <a
+              href="{% url 'view_result' r.session.id %}"
+              class="btn btn-outline-primary btn-sm"
+              >View</a
+            >
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">
+            No tests attempted yet.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById("trendChart");
+
+  const labels = {{ labels|safe }};
+  const scores = {{ scores|safe }};
+  const accuracies = {{ accuracies|safe }};
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Score (%)",
+          data: scores,
+          borderColor: "#4CAF50",
+          tension: 0.3,
+          fill: false,
+        },
+        {
+          label: "Accuracy (%)",
+          data: accuracies,
+          borderColor: "#2196F3",
+          tension: 0.3,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom" },
+        title: {
+          display: true,
+          text: "Performance Trend",
+          font: { size: 16 }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "notes/base.html" %}
+{% block title %}Available Tests - NextGen Physics{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center text-primary mb-4">🧮 Choose a Physics Test</h2>
+  <div class="row">
+    {% for test in tests %}
+      <div class="col-md-4 mb-3">
+        <div class="card shadow-sm h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">{{ test.title }}</h5>
+            <p class="text-muted small">{{ test.description|default:"No description" }}</p>
+            <a href="{% url 'start_test' test.id %}" class="btn btn-primary btn-sm">
+              Start Test
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-center text-danger">No tests available yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

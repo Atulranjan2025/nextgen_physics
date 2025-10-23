@@ -1,12 +1,45 @@
 {
-    "python.defaultInterpreterPath": "venv\\Scripts\\python.exe",
-    "python.formatting.provider": "black",
-    "editor.formatOnSave": true,
-    "files.exclude": {
-        "**/__pycache__": true,
-        "**/*.pyc": true
-    },
-    "terminal.integrated.env.windows": {
-        "DJANGO_SETTINGS_MODULE": "nextgen_physics.settings"
-    }
+  // 🧠 General Editor Settings
+  "editor.formatOnSave": true,
+  "files.autoSave": "off",
+
+  // 🧩 File Associations (Treat .html as Django templates)
+  "files.associations": {
+    "*.html": "django-html"
+  },
+
+  // 🧱 Disable auto-formatting for Django templates
+  "[django-html]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": false
+  },
+  "[html]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": false
+  },
+
+  // ✅ Keep Prettier ON for everything else
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // 🌈 Optional: Enable Emmet for Django templates
+  "emmet.includeLanguages": {
+    "django-html": "html"
+  },
+
+  // 🧰 Optional: Tab and Indentation Settings
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+
+  // 🧩 Optional: Prettier Configuration
+  "prettier.requireConfig": false,
+  "prettier.useEditorConfig": false
 }
