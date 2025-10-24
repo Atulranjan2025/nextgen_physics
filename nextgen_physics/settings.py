@@ -1,32 +1,32 @@
 """
-Django settings for nextgen_physics project.
+Django settings for nextgen_physics project — configured for Railway.app
 """
 
 import os
 from pathlib import Path
+import dj_database_url
+from dotenv import load_dotenv
 
-# Base directory
+# ==================== BASE CONFIG ====================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Detect if running on Render (Render sets an environment variable named 'RENDER')
-ON_RENDER = os.environ.get('RENDER', False)
+# Load .env file (for local development)
+load_dotenv(BASE_DIR / '.env')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0(76oi5(#s%*87evnipe(p4#mwds$xl-&+@+&i*eqv(5t!b$)%'
+# Railway environment detection
+ON_RAILWAY = os.environ.get('RAILWAY_STATIC_URL', False)
 
-# Debug mode (True for local, False for Render)
-DEBUG = not ON_RENDER
+# ==================== SECURITY ====================
 
-# Allowed hosts (both local + production)
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    'nextgen-physics.onrender.com',
-    'nextgenphysics.in',
-    'www.nextgenphysics.in',
-]
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'fallback-secret-key')
 
-# Application definition
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+
+# ==================== APPLICATIONS ====================
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -34,12 +34,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'notes.apps.NotesConfig',
+    'notes.apps.NotesConfig',   # your custom app
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # must be here for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -53,10 +53,11 @@ ROOT_URLCONF = 'nextgen_physics.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],  # optional if you use global templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -67,15 +68,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'nextgen_physics.wsgi.application'
 
-# Database
+# ==================== DATABASE ====================
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        ssl_require=False
+    )
 }
 
-# Password validation
+# ==================== PASSWORD VALIDATION ====================
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -83,27 +87,27 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
+# ==================== INTERNATIONALIZATION ====================
+
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'   # Optional: better for India
 USE_I18N = True
 USE_TZ = True
 
-# ==================== STATIC & MEDIA FILES ====================
+# ==================== STATIC & MEDIA ====================
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
-# Whitenoise static compression
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# ==================== SECURITY SETTINGS ====================
-if ON_RENDER:
-    # Production (Render)
+# ==================== SECURITY HEADERS ====================
+
+if ON_RAILWAY:
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
@@ -111,11 +115,11 @@ if ON_RENDER:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 else:
-    # Local development
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
     SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 0
 
-# Default primary key field type
+# ==================== DEFAULTS ====================
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
