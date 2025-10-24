@@ -1,0 +1,74 @@
+# ==============================
+# Python
+# ==============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.tmp
+*.log
+
+# ==============================
+# Virtual Environment
+# ==============================
+venv/
+env/
+.venv/
+
+# ==============================
+# Database
+# ==============================
+*.sqlite3
+db.sqlite3
+
+# ==============================
+# Environment Variables (Important!)
+# ==============================
+.env
+.env.*
+*.env
+# Never upload secret files like API keys, passwords etc.
+
+# ==============================
+# OS generated files
+# ==============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==============================
+# IDE & Editor files
+# ==============================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ==============================
+# Django Static & Media
+# ==============================
+/media/
+/staticfiles/
+/static_cdn/
+/static_root/
+
+# ==============================
+# Build / Packaging files
+# ==============================
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ==============================
+# Logs & Temp files
+# ==============================
+*.log
+*.pot
+*.py[co]
+__pycache__/
+*.mo
+*.swp
+*~
