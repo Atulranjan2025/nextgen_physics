@@ -1,5 +1,5 @@
 """
-Django settings for nextgen_physics project — configured for Railway.app
+Django settings for nextgen_physics project — configured for Render.com
 """
 
 import os
@@ -11,19 +11,19 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env file (for local development)
+# Load .env (for local testing)
 load_dotenv(BASE_DIR / '.env')
-
-# Railway environment detection
-ON_RAILWAY = os.environ.get('RAILWAY_STATIC_URL', False)
 
 # ==================== SECURITY ====================
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'fallback-secret-key')
-
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+# Multiple allowed hosts (Render, localhost, custom domain)
+ALLOWED_HOSTS = os.getenv(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,.onrender.com,nextgenphysics.in,www.nextgenphysics.in'
+).split(',')
 
 # ==================== APPLICATIONS ====================
 
@@ -34,12 +34,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'notes.apps.NotesConfig',   # your custom app
+    'notes.apps.NotesConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static file handler for Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,10 +50,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'nextgen_physics.urls'
 
+# ==================== TEMPLATES ====================
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],  # optional if you use global templates
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,7 +76,7 @@ DATABASES = {
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
-        ssl_require=False
+        ssl_require=True  # Render PostgreSQL always uses SSL
     )
 }
 
@@ -90,7 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ==================== INTERNATIONALIZATION ====================
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Kolkata'   # Optional: better for India
+TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
@@ -107,7 +109,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ==================== SECURITY HEADERS ====================
 
-if ON_RAILWAY:
+if not DEBUG:
+    # Render automatically provides HTTPS, so force SSL in production
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
@@ -115,11 +118,12 @@ if ON_RAILWAY:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 else:
+    # Local Development (No HTTPS)
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
     SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 0
 
-# ==================== DEFAULTS ====================
+# ==================== DEFAULT AUTO FIELD ====================
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
