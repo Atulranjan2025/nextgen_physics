@@ -255,9 +255,20 @@ def view_result(request, session_id):
 # ✅ DASHBOARD
 # =====================================================
 
-#@login_required
 def dashboard(request):
     """Show user’s test history and analytics."""
+    if not request.user.is_authenticated:
+        # Allow viewing a demo dashboard even if not logged in
+        return render(request, "notes/dashboard.html", {
+            "results": [],
+            "total_tests": 0,
+            "avg_score": 0,
+            "avg_accuracy": 0,
+            "labels": [],
+            "scores": [],
+            "accuracies": [],
+        })
+
     sessions = TestSession.objects.filter(user=request.user, completed=True).order_by('-start_time')
     results = TestResult.objects.filter(session__in=sessions).select_related('session__test')
 
@@ -269,7 +280,7 @@ def dashboard(request):
     scores = [r.score for r in results]
     accuracies = [r.accuracy for r in results]
 
-    context = {
+    return render(request, "notes/dashboard.html", {
         "results": results,
         "total_tests": total_tests,
         "avg_score": avg_score,
@@ -277,5 +288,4 @@ def dashboard(request):
         "labels": labels,
         "scores": scores,
         "accuracies": accuracies,
-    }
-    return render(request, "notes/dashboard.html", context)
+    })
