@@ -255,7 +255,7 @@ def view_result(request, session_id):
 # ✅ DASHBOARD
 # =====================================================
 
-@login_required
+#@login_required
 def dashboard(request):
     """Show user’s test history and analytics."""
     sessions = TestSession.objects.filter(user=request.user, completed=True).order_by('-start_time')
