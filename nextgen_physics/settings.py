@@ -1,5 +1,5 @@
 """
-Django settings for nextgen_physics project — configured for Render.com
+Django settings for nextgen_physics project — optimized for Render.com
 """
 
 import os
@@ -19,7 +19,6 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'fallback-secret-key')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# Multiple allowed hosts (Render, localhost, custom domain)
 ALLOWED_HOSTS = os.getenv(
     'ALLOWED_HOSTS',
     'localhost,127.0.0.1,.onrender.com,nextgenphysics.in,www.nextgenphysics.in'
@@ -55,7 +54,7 @@ ROOT_URLCONF = 'nextgen_physics.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [BASE_DIR / "templates"],  # Global templates folder
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,13 +71,25 @@ WSGI_APPLICATION = 'nextgen_physics.wsgi.application'
 
 # ==================== DATABASE ====================
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        ssl_require=True  # Render PostgreSQL always uses SSL
-    )
-}
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    # Use PostgreSQL on Render (with SSL)
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+else:
+    # Use SQLite locally
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # ==================== PASSWORD VALIDATION ====================
 
@@ -101,11 +112,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ==================== SECURITY HEADERS ====================
 
@@ -127,3 +137,9 @@ else:
 # ==================== DEFAULT AUTO FIELD ====================
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==================== OPTIONAL DEBUG LOG ====================
+
+# Show which DB is being used (for Render logs)
+print(f"✅ Using Database: {'PostgreSQL' if DATABASE_URL else 'SQLite (local)'}")
+print(f"✅ Debug Mode: {DEBUG}")
