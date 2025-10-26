@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'notes.apps.NotesConfig',
+    'django_extensions', 
 ]
 
 MIDDLEWARE = [
@@ -143,3 +144,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Show which DB is being used (for Render logs)
 print(f"✅ Using Database: {'PostgreSQL' if DATABASE_URL else 'SQLite (local)'}")
 print(f"✅ Debug Mode: {DEBUG}")
+import socket
+from dotenv import load_dotenv
+
+hostname = socket.gethostname()
+
+if "render" in hostname:
+    load_dotenv(BASE_DIR / ".env.production")
+else:
+    load_dotenv(BASE_DIR / ".env.local")
+
