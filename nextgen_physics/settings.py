@@ -134,6 +134,15 @@ else:
     SESSION_COOKIE_SECURE = False
     SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 0
+CSRF_TRUSTED_ORIGINS = [
+    "https://nextgenphysics.in",
+    "https://www.nextgenphysics.in",
+    "https://nextgenphysics.onrender.com"
+]
+
+SESSION_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SAMESITE = "None"
+
 
 # ==================== DEFAULT AUTO FIELD ====================
 
