@@ -3,6 +3,7 @@ Django settings for nextgen_physics project — optimized for Render.com
 """
 
 import os
+import socket
 from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
@@ -11,18 +12,22 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env (for local testing)
-load_dotenv(BASE_DIR / '.env')
+# Detect environment (Render or Local)
+hostname = socket.gethostname()
+if "render" in hostname:
+    load_dotenv(BASE_DIR / ".env.production")  # For Render
+else:
+    load_dotenv(BASE_DIR / ".env")  # For local testing
 
 # ==================== SECURITY ====================
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'fallback-secret-key')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "fallback-secret-key")
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv(
-    'ALLOWED_HOSTS',
-    'localhost,127.0.0.1,.onrender.com,nextgenphysics.in,www.nextgenphysics.in'
-).split(',')
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1,nextgenphysics.in,www.nextgenphysics.in,.onrender.com"
+).split(",")
 
 # ==================== APPLICATIONS ====================
 
@@ -34,12 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'notes.apps.NotesConfig',
-    'django_extensions', 
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static file handler for Render
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files on Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -74,8 +79,8 @@ WSGI_APPLICATION = 'nextgen_physics.wsgi.application'
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    # Use PostgreSQL on Render (with SSL)
+if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
+    # ✅ Use PostgreSQL (Render or External)
     DATABASES = {
         "default": dj_database_url.config(
             default=DATABASE_URL,
@@ -84,7 +89,7 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
         )
     }
 else:
-    # Use SQLite locally
+    # ✅ Use SQLite locally (fallback)
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -118,10 +123,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# ==================== SECURITY HEADERS ====================
+# ==================== SECURITY & COOKIE SETTINGS ====================
 
 if not DEBUG:
-    # Render automatically provides HTTPS, so force SSL in production
+    # ✅ Production Mode (Render)
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
@@ -129,37 +134,31 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 else:
-    # Local Development (No HTTPS)
+    # ✅ Local Mode (HTTP)
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
     SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 0
+
+# ✅ Fix HTTPS Login Issue (Cookies + CSRF for Render)
 CSRF_TRUSTED_ORIGINS = [
     "https://nextgenphysics.in",
     "https://www.nextgenphysics.in",
-    "https://nextgenphysics.onrender.com"
+    "https://nextgenphysics.onrender.com",
 ]
 
 SESSION_COOKIE_SAMESITE = "None"
 CSRF_COOKIE_SAMESITE = "None"
 
+# ✅ Allow cookies on both www and non-www
+SESSION_COOKIE_DOMAIN = ".nextgenphysics.in"
+CSRF_COOKIE_DOMAIN = ".nextgenphysics.in"
 
 # ==================== DEFAULT AUTO FIELD ====================
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ==================== OPTIONAL DEBUG LOG ====================
+# ==================== DEBUG LOGGING ====================
 
-# Show which DB is being used (for Render logs)
 print(f"✅ Using Database: {'PostgreSQL' if DATABASE_URL else 'SQLite (local)'}")
 print(f"✅ Debug Mode: {DEBUG}")
-import socket
-from dotenv import load_dotenv
-
-hostname = socket.gethostname()
-
-if "render" in hostname:
-    load_dotenv(BASE_DIR / ".env.production")
-else:
-    load_dotenv(BASE_DIR / ".env.local")
-
