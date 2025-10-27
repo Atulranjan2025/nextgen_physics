@@ -1,4 +1,8 @@
-# Ignore virtual environment
+# ----------------------------
+# Python & Django Project .gitignore
+# ----------------------------
+
+# Virtual environment
 venv/
 env/
 .venv/
@@ -16,13 +20,26 @@ db.sqlite3
 # Environment variables
 .env
 .env.*
+.env.local
+.env.auto
 
 # Media and static files
 /media/
-/staticfiles/
+staticfiles/
+static/
+uploads/
 
-# IDE files
-.vscode/
-.idea/
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# IDE / Editor settings
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Node / Frontend (if later added)
+node_modules/
+dist/

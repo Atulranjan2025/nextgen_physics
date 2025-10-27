@@ -3,6 +3,9 @@ from django.utils.text import slugify
 from django.contrib.auth.models import User
 
 
+# ✅ Cloudinary Integrated: Automatically works with Cloudinary if DEFAULT_FILE_STORAGE is set
+# (No need to change upload_to paths)
+
 class PhysicsNote(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -10,6 +13,11 @@ class PhysicsNote(models.Model):
     chapter = models.CharField(max_length=100)
     pdf_file = models.FileField(upload_to='notes_pdfs/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.chapter}"
+
+
 class ContactMessage(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -19,26 +27,24 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"Message from {self.name} ({self.email})"
 
+
 class Simulation(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     thumbnail = models.ImageField(upload_to='simulation_thumbnails/', blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True)
     content_html = models.TextField(blank=True, help_text="Optional custom HTML/JS simulation code")
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        # Automatically create slug from title
         if not self.slug:
             self.slug = slugify(self.title)
-        super(Simulation, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
 
-
-
-from django.db import models
 
 class PhysicsTest(models.Model):
     title = models.CharField(max_length=200)
@@ -65,7 +71,9 @@ class Question(models.Model):
     ])
 
     def __str__(self):
-        return self.question_text[:100]
+        return f"Q: {self.question_text[:80]}..."
+
+
 class TestSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     test = models.ForeignKey(PhysicsTest, on_delete=models.CASCADE)
@@ -75,11 +83,15 @@ class TestSession(models.Model):
     responses = models.JSONField(default=dict)
     completed = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Session - {self.user} | {self.test}"
+
+
 class TestResult(models.Model):
     session = models.OneToOneField(TestSession, on_delete=models.CASCADE)
     score = models.FloatField()
     accuracy = models.FloatField()
-    details = models.JSONField()  # {q_id: {"selected": "B", "correct": "C", "time": 12}}
+    details = models.JSONField(help_text="Stores question-wise answers and timings")
 
-
-    
+    def __str__(self):
+        return f"Result: {self.session.user} - {self.score:.2f}"

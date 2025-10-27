@@ -1,42 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- ========== Basic Meta ========== -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="NextGen Physics — AI-powered NEET & JEE preparation with tests, notes, and simulations." />
+    <meta name="keywords" content="Physics, NEET, JEE, Tests, Notes, Simulations, NextGen Physics" />
+    <meta name="author" content="Atul Ranjan" />
+
     <title>{% block title %}NextGen Physics{% endblock %}</title>
 
-    <!-- Bootstrap CSS -->
+    <!-- ========== Favicon ========== -->
+    <link rel="icon" type="image/png" href="/static/images/favicon.png" />
+
+    <!-- ========== Bootstrap CSS ========== -->
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0uFU9PZxSmE5a8pZ"
+      crossorigin="anonymous"
+    />
+
+    <!-- ========== Google Fonts ========== -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- MathJax (for equations like F = ma) -->
+    <!-- ========== MathJax (for equations) ========== -->
     <script>
       window.MathJax = {
         tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]] },
         svg: { fontCache: "global" },
       };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
-    <!-- 🌈 Custom Styles -->
+    <!-- ========== Core Styling ========== -->
     <style>
-      /* =====================
-         🌗 Theme Colors
-      ===================== */
+      /* 🌗 Theme Colors */
       :root {
         --bg-color: #f8f9fa;
         --text-color: #212529;
         --card-bg: #ffffff;
-        --nav-bg: #212529;
+        --nav-bg: #0b0c10;
         --nav-text: #ffffff;
+        --accent-color: #ffc107;
       }
 
       body.dark-mode {
@@ -45,11 +54,9 @@
         --card-bg: #1e1e1e;
         --nav-bg: #000000;
         --nav-text: #ffffff;
+        --accent-color: #fdd835;
       }
 
-      /* =====================
-         🧱 Base Layout
-      ===================== */
       body {
         font-family: "Poppins", sans-serif;
         background-color: var(--bg-color);
@@ -67,42 +74,34 @@
         }
       }
 
-      /* =====================
-         🌐 Navbar
-      ===================== */
+      /* 🧭 Navbar */
       .navbar {
         background-color: var(--nav-bg) !important;
         transition: background-color 0.4s ease;
       }
-
       .nav-link {
         color: var(--nav-text) !important;
         transition: color 0.3s ease;
       }
-
       .nav-link:hover {
-        color: #ffc107 !important;
+        color: var(--accent-color) !important;
       }
-
       .navbar-brand {
         font-weight: 600;
-        font-size: 1.3rem;
+        font-size: 1.35rem;
       }
 
-      /* =====================
-         📦 Cards (Test + Result)
-      ===================== */
+      /* 📦 Cards */
       .question-card,
       .result-card {
         background-color: var(--card-bg);
         color: var(--text-color);
         border-radius: 10px;
         transition: background-color 0.4s ease, color 0.4s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
       }
 
-      /* =====================
-         🖼️ Image Styling (Test + Result)
-      ===================== */
+      /* 🖼️ Image Styles */
       .question-card img,
       .result-image {
         display: block;
@@ -110,27 +109,21 @@
         max-width: 420px;
         height: auto;
         border-radius: 8px;
-        border: 1px solid #555;
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
-        transition: transform 0.2s ease-in-out, filter 0.4s ease-in-out;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        transition: transform 0.25s ease, filter 0.3s ease;
       }
 
-      .question-card img:hover,
-      .result-image:hover {
+      .question-card img:hover {
         transform: scale(1.05);
       }
 
-      /* ✅ Keep diagrams visible in dark mode */
-      body.dark-mode .question-card img,
-      body.dark-mode .result-image {
+      body.dark-mode .question-card img {
         background-color: #fff;
-        padding: 6px;
-        filter: brightness(1.1) contrast(1.15);
+        filter: brightness(1.1) contrast(1.2);
       }
 
-      /* =====================
-         🌙 Theme Toggle
-      ===================== */
+      /* 🌗 Theme Toggle */
       .theme-toggle {
         background: none;
         border: none;
@@ -139,35 +132,37 @@
         cursor: pointer;
         transition: transform 0.3s ease;
       }
-
       .theme-toggle:hover {
         transform: rotate(25deg);
       }
 
-      /* =====================
-         🧾 Footer
-      ===================== */
+      /* 🧾 Footer */
       footer {
         background-color: var(--nav-bg);
         color: var(--nav-text);
+        font-size: 0.9rem;
+        padding: 12px 0;
+        margin-top: 40px;
         transition: all 0.4s ease;
       }
 
-      /* Responsive */
+      /* 📱 Responsive */
       @media (max-width: 768px) {
-        .question-card img,
-        .result-image {
+        .question-card img {
           max-width: 95%;
+        }
+        .navbar-brand {
+          font-size: 1.1rem;
         }
       }
     </style>
   </head>
 
   <body>
-    <!-- =====================
+    <!-- ======================
          🧭 Navbar
-    ===================== -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    ====================== -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm">
       <div class="container">
         <a class="navbar-brand fw-bold" href="/">⚛️ NextGen Physics</a>
 
@@ -176,9 +171,6 @@
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -201,46 +193,47 @@
       </div>
     </nav>
 
-    <!-- =====================
-         📄 Dynamic Content
-    ===================== -->
+    <!-- ======================
+         📄 Main Content
+    ====================== -->
     <main class="container py-5 mt-5">
       {% block content %}{% endblock %}
     </main>
 
-    <!-- =====================
+    <!-- ======================
          ⚙️ Footer
-    ===================== -->
-    <footer class="text-center py-3">
+    ====================== -->
+    <footer class="text-center">
       <p class="mb-0">
         © 2025 <strong>NextGen Physics</strong> | Crafted with ❤️ by
         <strong>Atul Ranjan</strong>
       </p>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ========== Bootstrap JS ========== -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-w72vG9sM+gdJ6F1nHGFmV6XocQ0HqKzU9sQXv6VhG2lJY8VdWfu12hZ4Zz1cdqv1"
+      crossorigin="anonymous"
+    ></script>
 
-    <!-- =====================
-         🌗 Theme Toggle Script
-    ===================== -->
+    <!-- ======================
+         🌙 Theme Toggle Script
+    ====================== -->
     <script>
       const toggleButton = document.getElementById("themeToggle");
       const body = document.body;
-
-      const userPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       const savedTheme = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-      if (savedTheme === "dark" || (!savedTheme && userPrefersDark)) {
+      if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
         body.classList.add("dark-mode");
         toggleButton.textContent = "☀️";
-      } else {
-        toggleButton.textContent = "⭐";
       }
 
       function smoothTransition() {
-        body.classList.add("fade-transition");
-        setTimeout(() => body.classList.remove("fade-transition"), 500);
+        body.style.transition = "background-color 0.4s, color 0.4s";
+        setTimeout(() => (body.style.transition = ""), 500);
       }
 
       toggleButton.addEventListener("click", () => {
@@ -251,12 +244,12 @@
         localStorage.setItem("theme", dark ? "dark" : "light");
       });
 
+      // Auto adjust if system theme changes
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-        const newPref = e.matches ? "dark" : "light";
         if (!localStorage.getItem("theme")) {
           smoothTransition();
-          body.classList.toggle("dark-mode", newPref === "dark");
-          toggleButton.textContent = newPref === "dark" ? "☀️" : "⭐";
+          body.classList.toggle("dark-mode", e.matches);
+          toggleButton.textContent = e.matches ? "☀️" : "⭐";
         }
       });
     </script>

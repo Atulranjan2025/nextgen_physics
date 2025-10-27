@@ -5,7 +5,8 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
-import json
+import json, os, pandas as pd
+from django.conf import settings
 
 from .models import (
     PhysicsNote,
@@ -97,7 +98,6 @@ def start_test(request, test_id):
     """Start or resume a test."""
     test = get_object_or_404(PhysicsTest, id=test_id)
 
-    # Create or get existing test session
     session, created = TestSession.objects.get_or_create(
         user=request.user if request.user.is_authenticated else None,
         test=test,
@@ -209,7 +209,6 @@ def view_result(request, session_id):
         selected = result.details.get(q_id, {}).get("selected")
         correct_opt = result.details.get(q_id, {}).get("correct")
 
-        # Map letters (A/B/C/D) to full text
         options = {
             "A": q.option_a,
             "B": q.option_b,
@@ -256,7 +255,7 @@ def view_result(request, session_id):
 # =====================================================
 
 def dashboard(request):
-    """Show all completed test results (including anonymous ones)."""
+    """Show all completed test results."""
     sessions = TestSession.objects.filter(completed=True).order_by('-start_time')
     results = TestResult.objects.filter(session__in=sessions).select_related('session__test')
 
