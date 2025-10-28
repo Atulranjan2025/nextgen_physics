@@ -40,13 +40,24 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
 ]
+
+# ==================== CLOUDINARY CONFIGURATION ====================
+
 CLOUDINARY_STORAGE = {
+    
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dj8hliupo'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY', '531811533591827'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', 'v0p2nnTjDIwgXqw2LdTDwrMggSc'),
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# ==================== DEFAULT FILE STORAGE (Auto switch) ====================
+
+if DEBUG:
+    # ✅ Local development: store files in /media/
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+else:
+    # ✅ Production (Render): store files on Cloudinary
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # ==================== MIDDLEWARE ====================
 
@@ -127,7 +138,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -157,15 +167,11 @@ CSRF_TRUSTED_ORIGINS = [
     "https://nextgenphysics.onrender.com",
 ]
 
-SESSION_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SAMESITE = "None" if MODE == "production" else "Lax"
+CSRF_COOKIE_SAMESITE = "None" if MODE == "production" else "Lax"
 
-if MODE == "production":
-    SESSION_COOKIE_DOMAIN = ".nextgenphysics.in"
-    CSRF_COOKIE_DOMAIN = ".nextgenphysics.in"
-else:
-    SESSION_COOKIE_DOMAIN = None
-    CSRF_COOKIE_DOMAIN = None
+SESSION_COOKIE_DOMAIN = ".nextgenphysics.in" if MODE == "production" else None
+CSRF_COOKIE_DOMAIN = ".nextgenphysics.in" if MODE == "production" else None
 
 # ==================== DEFAULT AUTO FIELD ====================
 
@@ -177,28 +183,9 @@ print(f"✅ Mode: {MODE}")
 print(f"✅ Using Database: {'PostgreSQL' if DATABASE_URL.startswith('postgresql://') else 'SQLite'}")
 print(f"✅ Debug Mode: {DEBUG}")
 print(f"✅ Allowed Hosts: {ALLOWED_HOSTS}")
-# ==================== SECURITY / CSRF SETTINGS ====================
+print(f"✅ Storage: {'Cloudinary' if not DEBUG else 'Local /media/'}")
 
-if os.getenv("MODE") == "production":
-    # ✅ Production security
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SESSION_COOKIE_SAMESITE = "None"
-    CSRF_COOKIE_SAMESITE = "None"
-    SESSION_COOKIE_DOMAIN = ".nextgenphysics.in"
-    CSRF_COOKIE_DOMAIN = ".nextgenphysics.in"
-else:
-    # ✅ Local development (No HTTPS enforcement)
-    CSRF_COOKIE_SECURE = False
-    SESSION_COOKIE_SECURE = False
-    SECURE_SSL_REDIRECT = False
-    SECURE_HSTS_SECONDS = 0
-    SESSION_COOKIE_SAMESITE = "Lax"
-    CSRF_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_DOMAIN = None
-    CSRF_COOKIE_DOMAIN = None
-
+   
+   
+   
+ 

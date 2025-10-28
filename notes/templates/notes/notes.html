@@ -1,9 +1,12 @@
-{% extends "notes/base.html" %} {% block title %} Notes - NextGen Physics
-{%endblock %} {% block content %}
-<div class="container text-center">
-  <h1 class="display-5 fw-bold text-primary">Physics Notes 📘</h1>
-  <p class="lead mt-3">
-    Explore concept-based interactive notes powered by AI ⚛️
+{% extends "notes/base.html" %}
+{% block title %}Physics Notes - NextGen Physics{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+  <!-- Heading -->
+  <h1 class="display-5 fw-bold text-gradient">Physics Notes 📘</h1>
+  <p class="lead mt-3 text-muted">
+    Explore AI-powered, concept-based Physics notes for NEET & JEE ⚛️
   </p>
 
   <!-- 🔍 Search Bar -->
@@ -12,43 +15,52 @@
       type="text"
       name="q"
       value="{{ query }}"
-      class="form-control w-50 me-2"
+      class="form-control w-50 me-2 search-input"
       placeholder="Search by title or chapter..."
     />
-    <button type="submit" class="btn btn-primary">Search</button>
+    <button type="submit" class="btn btn-nextgen">Search</button>
   </form>
 
-  <!-- Notes Grid -->
-  <div class="row mt-3">
+  <!-- 🧾 Notes Grid -->
+  <div class="row mt-4">
     {% for note in notes %}
     <div class="col-md-4 mb-4">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-body">
-          <h5 class="card-title text-primary">{{ note.title }}</h5>
-          <p class="card-text text-muted">
+      <div class="card note-card shadow-lg border-0 h-100 position-relative">
+        <div class="card-body d-flex flex-column">
+          <!-- Title -->
+          <h5 class="card-title fw-bold text-gradient">{{ note.title }}</h5>
+
+          <!-- Chapter -->
+          <p class="text-secondary small mb-1">
+            <strong>Chapter:</strong> {{ note.chapter }}
+          </p>
+
+          <!-- Description -->
+          <p class="card-text text-muted flex-grow-1">
             {{ note.description|truncatechars:120 }}
           </p>
-          <p><strong>Chapter:</strong> {{ note.chapter }}</p>
 
-          <!-- View Details Button -->
-          <a
-            href="{% url 'note_detail' note.id %}"
-            class="btn btn-primary btn-sm me-2"
-            >View Details</a
-          >
+          <!-- Buttons -->
+          <div class="mt-auto">
+            <a
+              href="{% url 'note_detail' note.id %}"
+              class="btn btn-outline-primary btn-sm me-2"
+            >
+              🔍 View Details
+            </a>
 
-          <!-- PDF Button -->
-          {% if note.pdf_file %}
-          <a
-            href="{{ note.pdf_file.url }}"
-            class="btn btn-outline-success btn-sm"
-            target="_blank"
-          >
-            📄 View PDF
-          </a>
-          {% else %}
-          <p class="text-muted small mt-2 mb-0">No PDF available</p>
-          {% endif %}
+            {% if note.pdf_file %}
+            <a
+              href="{{ note.pdf_file.url }}"
+              class="btn btn-success btn-sm"
+              target="_blank"
+            >
+              📄 View PDF
+            </a>
+            {% else %}
+            <p class="text-muted small mt-2 mb-0">No PDF available</p>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
@@ -57,28 +69,27 @@
     {% endfor %}
   </div>
 
-  <!-- ✅ Pagination Controls -->
+  <!-- ✅ Pagination -->
+  {% if notes.paginator.num_pages > 1 %}
   <div class="mt-4 d-flex justify-content-center">
     <nav aria-label="Notes pagination">
-      <ul class="pagination">
+      <ul class="pagination pagination-lg shadow-sm">
         {% if notes.has_previous %}
         <li class="page-item">
           <a
             class="page-link"
             href="?page={{ notes.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
-            >← Previous</a
+            >← Prev</a
           >
         </li>
         {% else %}
-        <li class="page-item disabled">
-          <span class="page-link">← Previous</span>
-        </li>
+        <li class="page-item disabled"><span class="page-link">← Prev</span></li>
         {% endif %}
 
         <li class="page-item disabled">
-          <span class="page-link">
-            Page {{ notes.number }} of {{ notes.paginator.num_pages }}
-          </span>
+          <span class="page-link"
+            >Page {{ notes.number }} of {{ notes.paginator.num_pages }}</span
+          >
         </li>
 
         {% if notes.has_next %}
@@ -90,12 +101,82 @@
           >
         </li>
         {% else %}
-        <li class="page-item disabled">
-          <span class="page-link">Next →</span>
-        </li>
+        <li class="page-item disabled"><span class="page-link">Next →</span></li>
         {% endif %}
       </ul>
     </nav>
   </div>
+  {% endif %}
 </div>
+
+<!-- 🌈 Inline Styles -->
+<style>
+  /* Gradient Text */
+  .text-gradient {
+    background: linear-gradient(90deg, #9a6cff, #6f42c1, #9a6cff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Search Bar */
+  .search-input {
+    border-radius: 30px;
+    border: 2px solid #9a6cff;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+  }
+  .search-input:focus {
+    border-color: #6f42c1;
+    box-shadow: 0 0 5px rgba(154, 108, 255, 0.4);
+  }
+
+  /* Notes Cards */
+  .note-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .note-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(154, 108, 255, 0.3);
+  }
+  body.dark-mode .note-card {
+    background: rgba(30, 30, 30, 0.9);
+  }
+
+  /* NextGen Button */
+  .btn-nextgen {
+    background: linear-gradient(90deg, #9a6cff, #6f42c1);
+    border: none;
+    color: #fff;
+    font-weight: 500;
+    border-radius: 25px;
+    padding: 8px 20px;
+    transition: all 0.3s ease;
+  }
+  .btn-nextgen:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(154, 108, 255, 0.6);
+  }
+
+  /* Pagination */
+  .pagination .page-link {
+    border-radius: 20px !important;
+    margin: 0 5px;
+    color: #6f42c1;
+    border: 1px solid #9a6cff;
+  }
+  .pagination .page-link:hover {
+    background-color: #9a6cff;
+    color: white;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .search-input {
+      width: 75% !important;
+    }
+  }
+</style>
 {% endblock %}
