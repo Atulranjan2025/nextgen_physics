@@ -10,7 +10,7 @@ urlpatterns = [
     path('', include('notes.urls')),
 
     # ✅ AI Notes app को अलग prefix दो
-    path('ai-notes/', include('ai_notes.urls')),
+   
 ]
 
 if settings.DEBUG:
