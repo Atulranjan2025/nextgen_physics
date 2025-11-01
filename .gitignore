@@ -1,0 +1,46 @@
+# ----------------------------
+# Python & Django Project .gitignore
+# ----------------------------
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Environment variables (API keys, secrets, etc.)
+.env
+.env.*
+.env.local
+.env.auto
+.env.production
+
+# Media and static files
+/media/
+staticfiles/
+static/
+uploads/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor settings
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Node / Frontend (if later added)
+node_modules/
+dist/
