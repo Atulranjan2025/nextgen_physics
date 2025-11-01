@@ -277,3 +277,12 @@ def dashboard(request):
         "accuracies": accuracies,
     }
     return render(request, "notes/dashboard.html", context)
+from django.shortcuts import render
+
+def sim_projectile(request):
+    return render(request, 'notes/projectile_simulation.html')
+def sim_oblique_collision(request):
+    """Render the oblique collision simulation page"""
+    return render(request, 'notes/oblique_collision.html')
+
+

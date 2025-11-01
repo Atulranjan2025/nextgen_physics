@@ -1,32 +1,40 @@
-{% extends "notes/base.html" %} {% block title %}Simulations - NextGen
-Physics{%endblock %} {% block content %}
-<div class="container text-center mt-5">
-  <h1 class="text-primary fw-bold">⚙️ Physics Simulations Library</h1>
-  <p class="lead text-muted mb-4">
-    Explore 25+ interactive simulations for JEE & NEET Physics.
-  </p>
+{% extends "notes/base.html" %}
+{% block title %}Simulations - NextGen Physics{% endblock %}
 
+{% block content %}
+<div class="container text-center mt-5">
+  <!-- Gradient Header -->
+  <div class="p-4 rounded-3 mb-4" style="background: linear-gradient(90deg, #007bff, #00c6ff); color: white;">
+    <h1 class="fw-bold mb-2">⚙️ Physics Simulations Library</h1>
+    <p class="lead mb-0">Explore Interactive NEET & JEE Simulations — Learn Concepts Visually</p>
+  </div>
+
+  <!-- Simulation Cards -->
   <div class="row justify-content-center">
     {% for sim in simulations %}
     <div class="col-md-4 mb-4">
-      <div class="card shadow-sm border-0 h-100">
+      <div class="card shadow border-0 h-100 transition-all" style="border-radius: 15px;">
         {% if sim.thumbnail %}
         <img
           src="{{ sim.thumbnail.url }}"
           class="card-img-top"
-          style="height: 180px; object-fit: cover"
+          style="height: 180px; object-fit: cover; border-top-left-radius: 15px; border-top-right-radius: 15px;"
+          alt="{{ sim.title }}"
         />
         {% endif %}
         <div class="card-body text-start">
-          <h5 class="card-title text-primary">{{ sim.title }}</h5>
-          <p class="card-text text-muted">
+          <h5 class="card-title text-primary fw-semibold">{{ sim.title }}</h5>
+          <p class="card-text text-muted small mb-3">
             {{ sim.description|truncatechars:120 }}
           </p>
+
+          <!-- Default Simulation Button -->
           <a
             href="{% url 'simulation_detail' sim.slug %}"
-            class="btn btn-outline-primary w-100"
-            >Start Simulation ⚡</a
+            class="btn btn-outline-primary w-100 fw-semibold"
           >
+            🚀 Start Simulation
+          </a>
         </div>
       </div>
     </div>
@@ -34,5 +42,51 @@ Physics{%endblock %} {% block content %}
     <p class="text-muted">No simulations available yet.</p>
     {% endfor %}
   </div>
+
+  <!-- Custom Simulations -->
+  <hr class="my-5" />
+  <h3 class="text-info fw-bold mb-4">🧠 Custom Interactive Simulations</h3>
+
+  <div class="row justify-content-center g-3">
+    <div class="col-md-3 col-sm-6">
+      <a
+        href="{% url 'sim_oblique_collision' %}"
+        class="btn btn-outline-info w-100 py-3 fw-bold"
+        style="font-size: 1.1rem; border-width: 2px;"
+      >
+        ⚛ Oblique Collision Simulation
+      </a>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <a
+        href="{% url 'sim_projectile' %}"
+        class="btn btn-outline-success w-100 py-3 fw-bold"
+        style="font-size: 1.1rem; border-width: 2px;"
+      >
+        🎯 Projectile Motion Simulation
+      </a>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <a
+        href="#"
+        class="btn btn-outline-warning w-100 py-3 fw-bold disabled"
+        title="Coming Soon"
+        style="font-size: 1.1rem; border-width: 2px;"
+      >
+        💥 Elastic vs Inelastic Collision (Coming Soon)
+      </a>
+    </div>
+  </div>
 </div>
+
+<!-- Small CSS for hover animation -->
+<style>
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease-in-out;
+  }
+</style>
 {% endblock %}

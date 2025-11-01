@@ -18,4 +18,9 @@ urlpatterns = [
     path('result/<int:session_id>/', views.view_result, name='view_result'),
 
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('sim/projectile/', views.sim_projectile, name='sim_projectile'),
+    path('sim/oblique/', views.sim_oblique_collision, name='sim_oblique_collision'),
+
+    # ✅ NEW LINE BELOW — Projectile Simulation
+
 ]

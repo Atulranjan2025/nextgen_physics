@@ -1,0 +1,220 @@
+{% extends "notes/base.html" %}
+{% block title %}Projectile Motion Simulation - NextGen Physics{% endblock %}
+
+{% block content %}
+<div class="container-fluid text-center mt-4">
+  <h2 class="text-primary fw-bold mb-3">
+    🎯 Projectile Motion Simulation 
+  </h2>
+
+  <!-- Controls -->
+  <div class="d-flex flex-wrap justify-content-center align-items-center mb-3 gap-3">
+    <div>
+      <label class="fw-bold">Initial Velocity (m/s):</label>
+      <input type="range" id="velocity" min="5" max="100" value="40" class="form-range" style="width:180px;">
+      <span id="velocityValue" class="fw-bold text-success">40</span>
+    </div>
+
+    <div>
+      <label class="fw-bold">Launch Angle (°):</label>
+      <input type="range" id="angle" min="5" max="85" value="45" class="form-range" style="width:180px;">
+      <span id="angleValue" class="fw-bold text-success">45</span>
+    </div>
+
+    <div>
+      <label class="fw-bold">Air Resistance:</label>
+      <input type="number" id="airCoeff" min="0" max="0.1" step="0.005" value="0.02" class="form-control d-inline-block text-center" style="width:80px;">
+    </div>
+
+    <div class="d-flex gap-2">
+      <button id="startBtn" class="btn btn-success fw-bold">▶ Start</button>
+      <button id="pauseBtn" class="btn btn-warning fw-bold">⏸ Pause</button>
+      <button id="resetBtn" class="btn btn-danger fw-bold">🔄 Reset</button>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button id="zoomIn" class="btn btn-outline-primary fw-bold">🔍 Zoom In</button>
+      <button id="zoomOut" class="btn btn-outline-secondary fw-bold">🔎 Zoom Out</button>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <canvas id="projectileCanvas" width="1100" height="550"
+    style="background:#f5f7ff; border:2px solid #007bff; border-radius:10px;"></canvas>
+
+  <!-- Energy Info -->
+  <div class="container mt-4">
+    <div class="progress mb-2" style="height:25px;">
+      <div id="keBar" class="progress-bar bg-success fw-bold" style="width:50%">KE: 0 J</div>
+      <div id="peBar" class="progress-bar bg-warning text-dark fw-bold" style="width:50%">PE: 0 J</div>
+    </div>
+  </div>
+
+  <!-- Data -->
+  <div class="container mt-3 bg-light p-3 rounded shadow-sm fs-5">
+    <div class="row fw-bold text-center">
+      <div class="col-md-2 text-primary">⏱ t = <span id="time">0.00</span> s</div>
+      <div class="col-md-2 text-success">🏔 Hmax = <span id="maxHeight">0.00</span> m</div>
+      <div class="col-md-2 text-danger">📏 Range = <span id="range">0.00</span> m</div>
+      <div class="col-md-2 text-info">💨 Speed = <span id="speed">0.00</span> m/s</div>
+      <div class="col-md-2 text-secondary">Vx = <span id="vxData">0.00</span> m/s</div>
+      <div class="col-md-2 text-secondary">Vy = <span id="vyData">0.00</span> m/s</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById("projectileCanvas");
+const ctx = canvas.getContext("2d");
+
+let g = 9.8, velocity = 40, angle = 45, mass = 1;
+let dragCoeff = 0.02, t = 0, dt = 0.02;
+let vx, vy, x, y, maxH = 0, range = 0;
+let isRunning = false, animation;
+let baseScale = 10;  // adjusted automatically
+let zoomLevel = 1;   // affects visible scale
+let path = [];
+
+function updateValues() {
+  velocity = +document.getElementById("velocity").value;
+  angle = +document.getElementById("angle").value;
+  dragCoeff = +document.getElementById("airCoeff").value;
+  document.getElementById("velocityValue").textContent = velocity;
+  document.getElementById("angleValue").textContent = angle;
+}
+["velocity","angle","airCoeff"].forEach(id=>{
+  document.getElementById(id).oninput = updateValues;
+});
+
+function autoScale() {
+  // compute theoretical range to fit canvas
+  const rangeEstimate = (velocity ** 2 * Math.sin(2 * angle * Math.PI / 180)) / g;
+  baseScale = Math.max(4, Math.min(800 / rangeEstimate, 15));
+}
+
+function resetSimulation() {
+  cancelAnimationFrame(animation);
+  t = 0; x = 80; y = canvas.height - 30; maxH = 0; range = 0;
+  path = [];
+  isRunning = false;
+  drawProjectile();
+  updateEnergyBars(0,0);
+  ["time","maxHeight","range","speed","vxData","vyData"].forEach(id=>{
+    document.getElementById(id).textContent = "0.00";
+  });
+}
+
+function startSimulation() {
+  if (!isRunning) {
+    autoScale();
+    vx = velocity * Math.cos(angle * Math.PI / 180);
+    vy = -velocity * Math.sin(angle * Math.PI / 180);
+    x = 80; y = canvas.height - 30;
+    path = [];
+    t = 0; isRunning = true;
+    animate();
+  }
+}
+
+function pauseSimulation(){isRunning=false;}
+
+function updateEnergyBars(ke, pe){
+  const total = ke + pe;
+  const k = total ? (ke/total)*100 : 0;
+  const p = total ? (pe/total)*100 : 0;
+  const keBar=document.getElementById("keBar");
+  const peBar=document.getElementById("peBar");
+  keBar.style.width = k+"%"; peBar.style.width = p+"%";
+  keBar.textContent = "KE: "+ke.toFixed(1)+" J";
+  peBar.textContent = "PE: "+pe.toFixed(1)+" J";
+}
+
+function drawAxes() {
+  ctx.strokeStyle = "#ddd";
+  ctx.lineWidth = 0.5;
+  for(let i=0;i<canvas.width;i+=50*zoomLevel){
+    ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke();
+  }
+  for(let j=0;j<canvas.height;j+=50*zoomLevel){
+    ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(canvas.width,j); ctx.stroke();
+  }
+}
+
+function drawProjectile(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawAxes();
+  ctx.fillStyle="#a8db90"; ctx.fillRect(0,canvas.height-20,canvas.width,20);
+
+  // Trace Path
+  ctx.beginPath();
+  ctx.moveTo(path[0]?.x || x, path[0]?.y || y);
+  for (let i = 1; i < path.length; i++) ctx.lineTo(path[i].x, path[i].y);
+  ctx.strokeStyle = "rgba(255,0,0,0.6)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Ball
+  ctx.beginPath();
+  ctx.arc(x,y,10,0,Math.PI*2);
+  ctx.fillStyle="red";
+  ctx.fill();
+
+  // Velocity Vector
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(x + vx * 2, y + vy * 2);
+  ctx.strokeStyle="blue";
+  ctx.lineWidth=2;
+  ctx.stroke();
+}
+
+function animate(){
+  if(!isRunning) return;
+  t += dt;
+
+  const speed = Math.sqrt(vx*vx + vy*vy);
+  const dragX = -dragCoeff * vx * speed;
+  const dragY = -dragCoeff * vy * speed;
+
+  vx += (dragX/mass) * dt;
+  vy += (g + dragY/mass) * dt;
+  const effectiveScale = baseScale * zoomLevel;
+  x += vx * dt * effectiveScale;
+  y += vy * dt * effectiveScale;
+
+  if (y < canvas.height - 30) path.push({x, y});
+
+  const height = (canvas.height - 30 - y) / effectiveScale;
+  const ke = 0.5 * mass * (vx*vx + vy*vy);
+  const pe = mass * g * Math.max(0, height);
+  updateEnergyBars(ke, pe);
+
+  if(height > maxH) maxH = height;
+  if(y >= canvas.height - 30 || x >= canvas.width - 20){
+    y = canvas.height - 30;
+    isRunning=false;
+  }
+
+  document.getElementById("time").textContent = t.toFixed(2);
+  document.getElementById("maxHeight").textContent = maxH.toFixed(2);
+  document.getElementById("range").textContent = ((x - 80)/effectiveScale).toFixed(2);
+  document.getElementById("speed").textContent = speed.toFixed(2);
+  document.getElementById("vxData").textContent = vx.toFixed(2);
+  document.getElementById("vyData").textContent = vy.toFixed(2);
+
+  drawProjectile();
+  animation=requestAnimationFrame(animate);
+}
+
+// Zoom Controls (now effective)
+document.getElementById("zoomIn").onclick = () => { zoomLevel *= 1.2; drawProjectile(); };
+document.getElementById("zoomOut").onclick = () => { zoomLevel /= 1.2; drawProjectile(); };
+
+// Buttons
+document.getElementById("startBtn").onclick=startSimulation;
+document.getElementById("pauseBtn").onclick=pauseSimulation;
+document.getElementById("resetBtn").onclick=resetSimulation;
+
+resetSimulation();
+</script>
+{% endblock %}

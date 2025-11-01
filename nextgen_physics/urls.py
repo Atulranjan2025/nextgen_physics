@@ -1,11 +1,16 @@
 from django.contrib import admin
-from django.urls import path, include    
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('notes.urls')),     
+
+    # ✅ This loads all URLs from "notes" app
+    path('', include('notes.urls')),
+
+    # ✅ AI Notes app को अलग prefix दो
+    path('ai-notes/', include('ai_notes.urls')),
 ]
 
 if settings.DEBUG:

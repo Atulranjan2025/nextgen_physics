@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django_extensions',
     'cloudinary',
     'cloudinary_storage',
+    'ai_notes',
 ]
+
 
 # ==================== CLOUDINARY CONFIGURATION ====================
 
@@ -184,6 +186,13 @@ print(f"✅ Using Database: {'PostgreSQL' if DATABASE_URL.startswith('postgresql
 print(f"✅ Debug Mode: {DEBUG}")
 print(f"✅ Allowed Hosts: {ALLOWED_HOSTS}")
 print(f"✅ Storage: {'Cloudinary' if not DEBUG else 'Local /media/'}")
+from dotenv import load_dotenv
+load_dotenv()
+GEMINI_API_KEY = os.getenv("AIzaSyDzwvHrENi0iegMKCZkg9Squ0e9Y2yN334")
+
+# -------------------- Default Primary Key --------------------
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
    
    
