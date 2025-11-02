@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
-import json, os, pandas as pd
 from django.conf import settings
+import json, os, pandas as pd
 
 from .models import (
     PhysicsNote,
@@ -72,16 +72,57 @@ def note_detail(request, note_id):
 
 
 # =====================================================
-# ✅ SIMULATION SYSTEM
+# ✅ SIMULATION SYSTEM (Fully Dynamic)
 # =====================================================
 
 def simulations_menu(request):
+    """List all uploaded simulations."""
     simulations = Simulation.objects.all().order_by('title')
     return render(request, 'notes/simulations_menu.html', {'simulations': simulations})
 
+
 def simulation_detail(request, slug):
+    """
+    Display simulation content.
+    Supports:
+    1️⃣ Direct HTML pasted in admin (content_html)
+    2️⃣ Uploaded .html file (html_file)
+    3️⃣ Fallback template rendering
+    """
     simulation = get_object_or_404(Simulation, slug=slug)
-    return render(request, 'notes/simulation_detail.html', {'simulation': simulation})
+
+    # ✅ Case 1: Admin pasted full HTML in content_html
+    if hasattr(simulation, 'content_html') and simulation.content_html:
+        return HttpResponse(simulation.content_html)
+
+    # ✅ Case 2: Admin uploaded an HTML file
+    elif hasattr(simulation, 'html_file') and simulation.html_file:
+        file_path = simulation.html_file.path
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            return HttpResponse(html_content)
+
+    # ✅ Case 3: Fallback template
+    else:
+        return render(request, 'notes/simulation_detail.html', {'simulation': simulation})
+
+
+# =====================================================
+# ✅ CUSTOM SIMULATIONS (Built-in)
+# =====================================================
+
+def sim_projectile(request):
+    """Render Projectile Motion simulation."""
+    return render(request, 'notes/projectile_simulation.html')
+
+def sim_oblique_collision(request):
+    """Render Oblique Collision simulation."""
+    return render(request, 'notes/oblique_collision.html')
+
+def ydse_simulation(request):
+    """Render Young's Double Slit Experiment simulation."""
+    return render(request, 'notes/ydse.html')
 
 
 # =====================================================
@@ -277,12 +318,3 @@ def dashboard(request):
         "accuracies": accuracies,
     }
     return render(request, "notes/dashboard.html", context)
-from django.shortcuts import render
-
-def sim_projectile(request):
-    return render(request, 'notes/projectile_simulation.html')
-def sim_oblique_collision(request):
-    """Render the oblique collision simulation page"""
-    return render(request, 'notes/oblique_collision.html')
-
-

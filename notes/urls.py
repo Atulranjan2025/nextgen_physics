@@ -20,6 +20,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('sim/projectile/', views.sim_projectile, name='sim_projectile'),
     path('sim/oblique/', views.sim_oblique_collision, name='sim_oblique_collision'),
+    path('ydse/', views.ydse_simulation, name='ydse_simulation'),
 
     # ✅ NEW LINE BELOW — Projectile Simulation
 

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>YDSE Dual-Color Interference | NextGen Physics</title>
+<style>
+  :root {
+    --bg: #040814;
+    --panel: #0c1628;
+    --accent: #00aaff;
+    --muted: #9fc9ff;
+  }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: #e6f2ff;
+  }
+  header {
+    background: linear-gradient(90deg, #081325, #0f243e);
+    text-align: center;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 1.4em;
+    padding: 12px;
+  }
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    gap: 10px;
+  }
+  .panel {
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+  #controls {
+    flex: 1 1 300px;
+    max-width: 350px;
+  }
+  #simulation {
+    flex: 3 1 900px;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(circle at center, #000, #011024 80%);
+    border-radius: 12px;
+    padding: 10px;
+    position: relative;
+  }
+  #intensityGraph {
+    width: 100%;
+    height: 200px;
+    background: #010a12;
+    margin-top: 10px;
+    border-radius: 8px;
+  }
+  label {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  input[type=range] { width: 100%; }
+  .val { float: right; color: #bfe9ff; font-weight: 600; }
+  canvas {
+    border-radius: 10px;
+    width: 100%;
+    height: 420px;
+    background: #000;
+  }
+  .btn {
+    background: linear-gradient(180deg, #17315a, #0f2238);
+    border: none;
+    color: #eaf4ff;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  footer {
+    text-align: center;
+    padding: 8px;
+    color: #86bce0;
+    background: #081325;
+    font-size: 0.8em;
+  }
+</style>
+</head>
+<body>
+<header>🌈 YDSE Dual-Color Interference Simulation | NextGen Physics</header>
+
+<div class="container">
+  <!-- Control Panel -->
+  <div id="controls" class="panel">
+    <h3 style="color:var(--accent)">Simulation Controls</h3>
+    <label>Red wavelength (λ₁): <span id="val-red" class="val">650 nm</span></label>
+    <input id="λ1" type="range" min="600" max="700" step="5" value="650">
+
+    <label>Blue wavelength (λ₂): <span id="val-blue" class="val">450 nm</span></label>
+    <input id="λ2" type="range" min="400" max="500" step="5" value="450">
+
+    <label>Slit separation (d): <span id="val-d" class="val">0.30 mm</span></label>
+    <input id="d" type="range" min="0.1" max="1.0" step="0.01" value="0.3">
+
+    <label>Screen distance (D): <span id="val-D" class="val">1.0 m</span></label>
+    <input id="D" type="range" min="0.5" max="3.0" step="0.1" value="1.0">
+
+    <div style="margin-top:10px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px">
+      <b>Fringe spacing (theory):</b><br>
+      Red Δx₁ = <span id="dx1" style="color:#ffb3b3">1.83 mm</span><br>
+      Blue Δx₂ = <span id="dx2" style="color:#8ecaff">1.26 mm</span>
+    </div>
+    <p style="margin-top:10px;color:#9fc9ff;font-size:13px;">
+      Observe how red (long λ) fringes are spaced wider and blue (short λ) fringes are closer.
+      Their overlap produces colorful interference.
+    </p>
+    <button id="resetAnim" class="btn">Reset Animation</button>
+  </div>
+
+  <!-- Simulation Panel -->
+  <div id="simulation" class="panel">
+    <canvas id="simCanvas"></canvas>
+    <canvas id="intensityGraph"></canvas>
+    <div style="text-align:center;color:#9fc9ff;margin-top:6px;font-size:13px;">
+      🟥 Red + 🟦 Blue = Mixed Colored Fringes (High Contrast)
+    </div>
+  </div>
+</div>
+
+<footer>© NextGen Physics | Dual-color YDSE Visualization by Atul Ranjan</footer>
+
+<script>
+const sim = document.getElementById("simCanvas");
+const ctx = sim.getContext("2d");
+const graph = document.getElementById("intensityGraph");
+const gctx = graph.getContext("2d");
+
+const λ1 = document.getElementById("λ1");
+const λ2 = document.getElementById("λ2");
+const dSlider = document.getElementById("d");
+const DSlider = document.getElementById("D");
+
+const valR = document.getElementById("val-red");
+const valB = document.getElementById("val-blue");
+const valD = document.getElementById("val-D");
+const vald = document.getElementById("val-d");
+const dx1 = document.getElementById("dx1");
+const dx2 = document.getElementById("dx2");
+const resetAnim = document.getElementById("resetAnim");
+
+let t = 0;
+function resize() {
+  sim.width = sim.clientWidth * devicePixelRatio;
+  sim.height = sim.clientHeight * devicePixelRatio;
+  graph.width = graph.clientWidth * devicePixelRatio;
+  graph.height = graph.clientHeight * devicePixelRatio;
+}
+window.addEventListener("resize", resize);
+resize();
+
+function draw() {
+  const λr = λ1.value * 1e-9;
+  const λb = λ2.value * 1e-9;
+  const d = dSlider.value * 1e-3;
+  const D = DSlider.value;
+
+  const Δxr = (λr * D) / d;
+  const Δxb = (λb * D) / d;
+  dx1.textContent = (Δxr * 1000).toFixed(2) + " mm";
+  dx2.textContent = (Δxb * 1000).toFixed(2) + " mm";
+
+  valR.textContent = λ1.value + " nm";
+  valB.textContent = λ2.value + " nm";
+  vald.textContent = parseFloat(dSlider.value).toFixed(2) + " mm";
+  valD.textContent = D + " m";
+
+  const w = sim.width, h = sim.height;
+  ctx.clearRect(0, 0, w, h);
+  const cx = w / 2, scale = w / 0.4;
+  const N = Math.floor(w / 2);
+  const dataR = [], dataB = [];
+
+  for (let x = -N; x < N; x++) {
+    const X = x / scale;
+    const φr = (2 * Math.PI / λr) * (d * X / D);
+    const φb = (2 * Math.PI / λb) * (d * X / D);
+    const Ir = Math.pow(Math.cos(φr / 2), 2);
+    const Ib = Math.pow(Math.cos(φb / 2), 2);
+    dataR.push(Ir);
+    dataB.push(Ib);
+
+    // color mix (weighted RGB)
+    const R = Math.min(255, Ir * 255);
+    const B = Math.min(255, Ib * 255);
+    const mix = (R + B) / 2;
+    ctx.fillStyle = `rgb(${R},${mix*0.9},${B})`;
+    ctx.fillRect(cx + x, h / 3, 1, h / 3);
+  }
+
+  // moving wave pattern (animation aesthetic)
+  t += 0.02;
+  ctx.strokeStyle = "rgba(0,150,255,0.25)";
+  for (let i = 0; i < 4; i++) {
+    const y = h / 2 + Math.sin(t + i) * h * 0.25;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+
+  // intensity graph (sum of both)
+  gctx.clearRect(0, 0, graph.width, graph.height);
+  gctx.lineWidth = 2;
+  // Red
+  gctx.strokeStyle = "#ff6666";
+  gctx.beginPath();
+  for (let i = 0; i < dataR.length; i++) {
+    const x = (i / dataR.length) * graph.width;
+    const y = graph.height * (1 - dataR[i]);
+    if (i === 0) gctx.moveTo(x, y);
+    else gctx.lineTo(x, y);
+  }
+  gctx.stroke();
+  // Blue
+  gctx.strokeStyle = "#66aaff";
+  gctx.beginPath();
+  for (let i = 0; i < dataB.length; i++) {
+    const x = (i / dataB.length) * graph.width;
+    const y = graph.height * (1 - dataB[i]);
+    if (i === 0) gctx.moveTo(x, y);
+    else gctx.lineTo(x, y);
+  }
+  gctx.stroke();
+
+  requestAnimationFrame(draw);
+}
+
+resetAnim.addEventListener("click", () => { t = 0; });
+draw();
+</script>
+</body>
+</html>
